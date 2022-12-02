@@ -96,7 +96,7 @@ def prepare_data(args):
 
     return train_loaders, test_loaders
 
-def pgd_attack(model, data, labels, loss_fun, device, eps=0.1, alpha=0.01, iters=25):
+def pgd_attack(model, data, labels, loss_fun, device, eps=0.05, alpha=0.003125, iters=40):
     data = data.to(device)
     labels = labels.to(device)
         
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     parser.add_argument('--test', action='store_true', help ='test the pretrained model')
     parser.add_argument('--percent', type = float, default= 0.1, help ='percentage of dataset to train')
     parser.add_argument('--lr', type=float, default=1e-2, help='learning rate')
-    parser.add_argument('--batch', type = int, default= 32, help ='batch size')
+    parser.add_argument('--batch', type = int, default= 16, help ='batch size')
     parser.add_argument('--iters', type = int, default=100, help = 'iterations for communication')
     parser.add_argument('--wk_iters', type = int, default=1, help = 'optimization iters in local worker between communication')
     parser.add_argument('--mode', type = str, default='fedbn', help='fedavg | fedprox | fedbn')
