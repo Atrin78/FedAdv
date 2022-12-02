@@ -98,7 +98,7 @@ def prepare_data(args):
 
 def pgd_attack(model, data, labels, loss_fun, device, eps=0.1, alpha=0.01, iters=25):
     data = data.to(device)
-    data = data.to(device)
+    labels = labels.to(device)
         
     ori_data = data.data
         
