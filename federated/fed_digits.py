@@ -68,6 +68,9 @@ def prepare_data(args):
     # MNIST-M
     mnistm_trainset     = data_utils.DigitsDataset(data_path='../../FedBN/data/MNIST_M/', channels=3, percent=args.percent,  train=True,  transform=transform_mnistm)
     mnistm_testset      = data_utils.DigitsDataset(data_path='../../FedBN/data/MNIST_M/', channels=3, percent=args.percent,  train=False, transform=transform_mnistm)
+    print(mnistm_trainset.__len__)
+    print(mnistm_testset.__len__)
+    print(mnist_trainset.__len__)
 
 #    mnist_train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=args.batch, shuffle=True)
     mnist_test_loader  = torch.utils.data.DataLoader(mnist_testset, batch_size=args.batch, shuffle=False)
