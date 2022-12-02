@@ -127,7 +127,7 @@ def train(model, train_loader, optimizer, loss_fun, client_num, device):
     for step in range(len(train_iter)):
         optimizer.zero_grad()
         x, y = next(train_iter)
-        print(x.size())
+        print(y.size())
         num_data += y.size(0)
         x = x.to(device).float()
         y = y.to(device).long()
