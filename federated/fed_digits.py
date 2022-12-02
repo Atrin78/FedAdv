@@ -68,9 +68,6 @@ def prepare_data(args):
     # MNIST-M
     mnistm_trainset     = data_utils.DigitsDataset(data_path='../../FedBN/data/MNIST_M/', channels=3, percent=args.percent,  train=True,  transform=transform_mnistm)
     mnistm_testset      = data_utils.DigitsDataset(data_path='../../FedBN/data/MNIST_M/', channels=3, percent=args.percent,  train=False, transform=transform_mnistm)
-    print(mnistm_trainset.__len__())
-    print(mnistm_testset.__len__())
-    print(mnist_trainset.__len__())
 
 #    mnist_train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=args.batch, shuffle=True)
     mnist_test_loader  = torch.utils.data.DataLoader(mnist_testset, batch_size=args.batch, shuffle=False)
@@ -286,7 +283,6 @@ if __name__ == '__main__':
     client_weights = [1/client_num for i in range(client_num)]
     models = [copy.deepcopy(server_model).to(device) for idx in range(client_num)]
     vd_len = train_loaders[client_num].__len__()
-    print(vd_len)
     mnistm_train_loader = torch.utils.data.DataLoader(train_loaders[client_num], batch_size=args.attack_batch,  shuffle=True)
 
     if args.test:
@@ -327,7 +323,7 @@ if __name__ == '__main__':
         adv_labels = None
         for b in range(vd_len//args.attack_batch):
             data, labels = next(attack_iter)
-            print(data.size())
+
             adv_samples = pgd_attack(server_model, data, labels, loss_fun, device)
             if adv_dataset is None:
                 adv_dataset = adv_samples
@@ -337,6 +333,7 @@ if __name__ == '__main__':
                 adv_labels = labels
             else:
                 adv_labels = torch.cat((adv_labels, labels), dim=0)
+        print(adv_labels.size())
         print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__getitem__(0)[0].size())
         train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], TensorDataset(adv_dataset, adv_labels)]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         for wi in range(args.wk_iters):
