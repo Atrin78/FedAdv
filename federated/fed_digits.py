@@ -50,24 +50,24 @@ def prepare_data(args):
         ])
 
     # MNIST
-    mnist_trainset     = data_utils.DigitsDataset(data_path="../data/MNIST", channels=1, percent=args.percent, train=True,  transform=transform_mnist)
-    mnist_testset      = data_utils.DigitsDataset(data_path="../data/MNIST", channels=1, percent=args.percent, train=False, transform=transform_mnist)
+    mnist_trainset     = data_utils.DigitsDataset(data_path="../../FedBN/data/MNIST", channels=1, percent=args.percent, train=True,  transform=transform_mnist)
+    mnist_testset      = data_utils.DigitsDataset(data_path="../../FedBN/data/MNIST", channels=1, percent=args.percent, train=False, transform=transform_mnist)
 
     # SVHN
-    svhn_trainset      = data_utils.DigitsDataset(data_path='../data/SVHN', channels=3, percent=args.percent,  train=True,  transform=transform_svhn)
-    svhn_testset       = data_utils.DigitsDataset(data_path='../data/SVHN', channels=3, percent=args.percent,  train=False, transform=transform_svhn)
+    svhn_trainset      = data_utils.DigitsDataset(data_path='../../FedBN/data/SVHN', channels=3, percent=args.percent,  train=True,  transform=transform_svhn)
+    svhn_testset       = data_utils.DigitsDataset(data_path='../../FedBN/data/SVHN', channels=3, percent=args.percent,  train=False, transform=transform_svhn)
 
     # USPS
-    usps_trainset      = data_utils.DigitsDataset(data_path='../data/USPS', channels=1, percent=args.percent,  train=True,  transform=transform_usps)
-    usps_testset       = data_utils.DigitsDataset(data_path='../data/USPS', channels=1, percent=args.percent,  train=False, transform=transform_usps)
+    usps_trainset      = data_utils.DigitsDataset(data_path='../../FedBN/data/USPS', channels=1, percent=args.percent,  train=True,  transform=transform_usps)
+    usps_testset       = data_utils.DigitsDataset(data_path='../../FedBN/data/USPS', channels=1, percent=args.percent,  train=False, transform=transform_usps)
 
     # Synth Digits
-    synth_trainset     = data_utils.DigitsDataset(data_path='../data/SynthDigits/', channels=3, percent=args.percent,  train=True,  transform=transform_synth)
-    synth_testset      = data_utils.DigitsDataset(data_path='../data/SynthDigits/', channels=3, percent=args.percent,  train=False, transform=transform_synth)
+    synth_trainset     = data_utils.DigitsDataset(data_path='../../FedBN/data/SynthDigits/', channels=3, percent=args.percent,  train=True,  transform=transform_synth)
+    synth_testset      = data_utils.DigitsDataset(data_path='../../FedBN/data/SynthDigits/', channels=3, percent=args.percent,  train=False, transform=transform_synth)
 
     # MNIST-M
-    mnistm_trainset     = data_utils.DigitsDataset(data_path='../data/MNIST_M/', channels=3, percent=args.percent,  train=True,  transform=transform_mnistm)
-    mnistm_testset      = data_utils.DigitsDataset(data_path='../data/MNIST_M/', channels=3, percent=args.percent,  train=False, transform=transform_mnistm)
+    mnistm_trainset     = data_utils.DigitsDataset(data_path='../../FedBN/data/MNIST_M/', channels=3, percent=args.percent,  train=True,  transform=transform_mnistm)
+    mnistm_testset      = data_utils.DigitsDataset(data_path='../../FedBN/data/MNIST_M/', channels=3, percent=args.percent,  train=False, transform=transform_mnistm)
 
 #    mnist_train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=args.batch, shuffle=True)
     mnist_test_loader  = torch.utils.data.DataLoader(mnist_testset, batch_size=args.batch, shuffle=False)
