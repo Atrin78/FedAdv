@@ -335,7 +335,8 @@ if __name__ == '__main__':
                 adv_labels = torch.cat((adv_labels, labels), dim=0)
         print(adv_labels.size())
         print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__getitem__(0)[0].size())
-        train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], TensorDataset(adv_dataset, adv_labels)]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
+ #       train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], TensorDataset(adv_dataset, adv_labels)]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
+        train_loaders2 = [torch.utils.data.DataLoader(TensorDataset(adv_dataset, adv_labels), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         for wi in range(args.wk_iters):
             print("============ Train epoch {} ============".format(wi + a_iter * args.wk_iters))
             if args.log: logfile.write("============ Train epoch {} ============\n".format(wi + a_iter * args.wk_iters)) 
