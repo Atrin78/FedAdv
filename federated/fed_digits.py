@@ -119,7 +119,7 @@ def pgd_attack(model, data, labels, loss_fun, device, eps=0.1, alpha=0.01, iters
         data = ori_data + eta
         data = data.detach_()
             
-    return data
+    return data.detach_().clone()
 
 def train(model, train_loader, optimizer, loss_fun, client_num, device):
     model.train()
