@@ -332,7 +332,7 @@ if __name__ == '__main__':
                 adv_dataset = adv_samples
             else:
                 adv_dataset = torch.cat((adv_dataset, adv_samples), dim=0)
-        print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__len__())
+        print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__getitem__())
         train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], adv_dataset]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         for wi in range(args.wk_iters):
             print("============ Train epoch {} ============".format(wi + a_iter * args.wk_iters))
