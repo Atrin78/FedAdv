@@ -110,7 +110,7 @@ def pgd_attack(model, data, labels, loss_fun, device, eps=0.1, alpha=0.01, iters
         cost = loss(outputs, labels).to(device)
         cost.backward()
 
-        adv_data = data + alpha*data.grad.sign()
+        adv_data = data - alpha*data.grad.sign()
         eta = torch.clamp(adv_data - ori_data, min=-eps, max=eps)
  #       data = torch.clamp(ori_data + eta, min=0, max=1).detach_()
         data = ori_data + eta
@@ -320,7 +320,7 @@ if __name__ == '__main__':
         adv_dataset = None
         for b in range(59000//args.attack_batch):
             data, labels = next(attack_iter)
-            adv_samples = pgd_attack(server_model, data, labels, -loss_fun, device)
+            adv_samples = pgd_attack(server_model, data, labels, loss_fun, device)
             if adv_dataset is None:
                 adv_dataset = adv_samples
             else:
