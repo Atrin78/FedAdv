@@ -318,7 +318,7 @@ if __name__ == '__main__':
         optimizers = [optim.SGD(params=models[idx].parameters(), lr=args.lr) for idx in range(client_num)]
         attack_iter = iter(mnistm_train_loader)
         adv_dataset = None
-        for b in 59000//args.attack_batch:
+        for b in range(59000//args.attack_batch):
             data, labels = next(attack_iter)
             adv_samples = pgd_attack(server_model, data, labels, -loss_fun, device)
             if adv_dataset is None:
