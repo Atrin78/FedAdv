@@ -324,6 +324,7 @@ if __name__ == '__main__':
         optimizers = [optim.SGD(params=models[idx].parameters(), lr=args.lr) for idx in range(client_num)]
         attack_iter = iter(mnistm_train_loader)
         adv_dataset = None
+        adv_labels = None
         for b in range(vd_len//args.attack_batch):
             data, labels = next(attack_iter)
             print(data.size())
@@ -332,8 +333,12 @@ if __name__ == '__main__':
                 adv_dataset = adv_samples
             else:
                 adv_dataset = torch.cat((adv_dataset, adv_samples), dim=0)
+            if adv_labels is None:
+                adv_labels = labels
+            else:
+                adv_labels = torch.cat((adv_labels, labels), dim=0)
         print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__getitem__(0)[0].size())
-        train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], adv_dataset]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
+        train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], TensorDataset(adv_dataset, adv_labels)]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         for wi in range(args.wk_iters):
             print("============ Train epoch {} ============".format(wi + a_iter * args.wk_iters))
             if args.log: logfile.write("============ Train epoch {} ============\n".format(wi + a_iter * args.wk_iters)) 
