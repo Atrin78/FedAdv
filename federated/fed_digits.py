@@ -15,6 +15,7 @@ import numpy as np
 import torchvision
 import torchvision.transforms as transforms
 from utils import data_utils
+from torch.utils.data import TensorDataset
 
 def prepare_data(args):
     # Prepare data
@@ -68,21 +69,54 @@ def prepare_data(args):
     mnistm_trainset     = data_utils.DigitsDataset(data_path='../data/MNIST_M/', channels=3, percent=args.percent,  train=True,  transform=transform_mnistm)
     mnistm_testset      = data_utils.DigitsDataset(data_path='../data/MNIST_M/', channels=3, percent=args.percent,  train=False, transform=transform_mnistm)
 
-    mnist_train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=args.batch, shuffle=True)
-    mnist_test_loader  = torch.utils.data.DataLoader(mnist_testset, batch_size=args.batch, shuffle=False)
-    svhn_train_loader = torch.utils.data.DataLoader(svhn_trainset, batch_size=args.batch,  shuffle=True)
-    svhn_test_loader = torch.utils.data.DataLoader(svhn_testset, batch_size=args.batch, shuffle=False)
-    usps_train_loader = torch.utils.data.DataLoader(usps_trainset, batch_size=args.batch,  shuffle=True)
-    usps_test_loader = torch.utils.data.DataLoader(usps_testset, batch_size=args.batch, shuffle=False)
-    synth_train_loader = torch.utils.data.DataLoader(synth_trainset, batch_size=args.batch,  shuffle=True)
-    synth_test_loader = torch.utils.data.DataLoader(synth_testset, batch_size=args.batch, shuffle=False)
-    mnistm_train_loader = torch.utils.data.DataLoader(mnistm_trainset, batch_size=args.batch,  shuffle=True)
-    mnistm_test_loader = torch.utils.data.DataLoader(mnistm_testset, batch_size=args.batch, shuffle=False)
+#    mnist_train_loader = torch.utils.data.DataLoader(mnist_trainset, batch_size=args.batch, shuffle=True)
+     mnist_test_loader  = torch.utils.data.DataLoader(mnist_testset, batch_size=args.batch, shuffle=False)
+#    svhn_train_loader = torch.utils.data.DataLoader(svhn_trainset, batch_size=args.batch,  shuffle=True)
+     svhn_test_loader = torch.utils.data.DataLoader(svhn_testset, batch_size=args.batch, shuffle=False)
+#    usps_train_loader = torch.utils.data.DataLoader(usps_trainset, batch_size=args.batch,  shuffle=True)
+     usps_test_loader = torch.utils.data.DataLoader(usps_testset, batch_size=args.batch, shuffle=False)
+#    synth_train_loader = torch.utils.data.DataLoader(synth_trainset, batch_size=args.batch,  shuffle=True)
+     synth_test_loader = torch.utils.data.DataLoader(synth_testset, batch_size=args.batch, shuffle=False)
+#    mnistm_train_loader = torch.utils.data.DataLoader(mnistm_trainset, batch_size=args.batch,  shuffle=True)
+     mnistm_test_loader = torch.utils.data.DataLoader(mnistm_testset, batch_size=args.batch, shuffle=False)
+
+    mnist_train_loader = mnist_trainset
+#    mnist_test_loader  = mnist_testset
+    svhn_train_loader = svhn_trainset
+#   svhn_test_loader = svhn_testset
+    usps_train_loader = usps_trainset
+#    usps_test_loader = usps_testset
+    synth_train_loader = synth_trainset
+#    synth_test_loader = synth_testset
+    mnistm_train_loader = mnistm_trainset
+#    mnistm_test_loader = mnistm_testset
 
     train_loaders = [mnist_train_loader, svhn_train_loader, usps_train_loader, synth_train_loader, mnistm_train_loader]
     test_loaders  = [mnist_test_loader, svhn_test_loader, usps_test_loader, synth_test_loader, mnistm_test_loader]
 
     return train_loaders, test_loaders
+
+def pgd_attack(model, data, labels, loss_fun, device, eps=0.1, alpha=0.01, iters=25):
+    data = data.to(device)
+    data = data.to(device)
+        
+    ori_data = data.data
+        
+    for i in range(iters) :    
+        data.requires_grad = True
+        outputs = model(data)
+
+        model.zero_grad()
+        cost = loss(outputs, labels).to(device)
+        cost.backward()
+
+        adv_data = data + alpha*data.grad.sign()
+        eta = torch.clamp(adv_data - ori_data, min=-eps, max=eps)
+ #       data = torch.clamp(ori_data + eta, min=0, max=1).detach_()
+        data = ori_data + eta
+        data = data.detach_()
+            
+    return data
 
 def train(model, train_loader, optimizer, loss_fun, client_num, device):
     model.train()
@@ -209,6 +243,7 @@ if __name__ == '__main__':
     parser.add_argument('--mu', type=float, default=1e-2, help='The hyper parameter for fedprox')
     parser.add_argument('--save_path', type = str, default='../checkpoint/digits', help='path to save the checkpoint')
     parser.add_argument('--resume', action='store_true', help ='resume training from the save path checkpoint')
+    parser.add_argument('--attack_batch', type = int, default= 500, help ='attack batch size')
     args = parser.parse_args()
 
     exp_folder = 'federated_digits'
@@ -243,9 +278,10 @@ if __name__ == '__main__':
     datasets = ['MNIST', 'SVHN', 'USPS', 'SynthDigits', 'MNIST-M']
     
     # federated setting
-    client_num = len(datasets)
+    client_num = len(datasets)-1
     client_weights = [1/client_num for i in range(client_num)]
     models = [copy.deepcopy(server_model).to(device) for idx in range(client_num)]
+    mnistm_train_loader = torch.utils.data.DataLoader(train_loaders[client_num], batch_size=args.attack_batch,  shuffle=True)
 
     if args.test:
         print('Loading snapshots...')
@@ -280,12 +316,21 @@ if __name__ == '__main__':
     # start training
     for a_iter in range(resume_iter, args.iters):
         optimizers = [optim.SGD(params=models[idx].parameters(), lr=args.lr) for idx in range(client_num)]
+        attack_iter = iter(mnistm_train_loader)
+        adv_dataset = None
+        for b in 59000//args.attack_batch:
+            data, labels = next(attack_iter)
+        	adv_samples = pgd_attack(server_model, data, labels, -loss_fun, device)
+            if adv_dataset is None:
+                adv_dataset = adv_samples
+            else:
+                adv_dataset = torch.cat((adv_dataset, adv_samples), dim=0)
+        train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], adv_dataset]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         for wi in range(args.wk_iters):
             print("============ Train epoch {} ============".format(wi + a_iter * args.wk_iters))
             if args.log: logfile.write("============ Train epoch {} ============\n".format(wi + a_iter * args.wk_iters)) 
-            
             for client_idx in range(client_num):
-                model, train_loader, optimizer = models[client_idx], train_loaders[client_idx], optimizers[client_idx]
+                model, train_loader, optimizer = models[client_idx], train_loaders2[client_idx], optimizers[client_idx]
                 if args.mode.lower() == 'fedprox':
                     if a_iter > 0:
                         train_fedprox(args, model, train_loader, optimizer, loss_fun, client_num, device)
