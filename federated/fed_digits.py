@@ -322,7 +322,7 @@ if __name__ == '__main__':
     # start training
     for a_iter in range(resume_iter, args.iters):
         optimizers = [optim.SGD(params=models[idx].parameters(), lr=args.lr) for idx in range(client_num)]
-        attack_iter = iter(mnistm_train_loader)
+        attack_iter = iter(train_loaders[0])
         adv_dataset = None
         for b in range(vd_len//args.attack_batch):
             data, labels = next(attack_iter)
