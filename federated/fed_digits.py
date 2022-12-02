@@ -363,6 +363,8 @@ if __name__ == '__main__':
 
         # start testing
         for test_idx, test_loader in enumerate(test_loaders):
+            if test_idx == client_num:
+                break
             test_loss, test_acc = test(models[test_idx], test_loader, loss_fun, device)
             print(' {:<11s}| Test  Loss: {:.4f} | Test  Acc: {:.4f}'.format(datasets[test_idx], test_loss, test_acc))
             if args.log:
@@ -376,7 +378,6 @@ if __name__ == '__main__':
             'model_1': models[1].state_dict(),
             'model_2': models[2].state_dict(),
             'model_3': models[3].state_dict(),
-            'model_4': models[4].state_dict(),
             'server_model': server_model.state_dict(),
         }, SAVE_PATH)
     else:
