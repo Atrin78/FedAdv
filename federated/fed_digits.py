@@ -118,19 +118,26 @@ def pgd_attack(model, data, labels, loss_fun, device, eps=0.1, alpha=0.01, iters
             
     return data.to(torch.device ("cpu"))
 
-def train(model, train_loader, optimizer, loss_fun, client_num, device):
+def train(model, train_loader, aux_loader, optimizer, loss_fun, client_num, device):
     model.train()
     num_data = 0
     correct = 0
     loss_all = 0
     train_iter = iter(train_loader)
+    aux_iter = iter(aux_loader)
     for step in range(len(train_iter)):
         optimizer.zero_grad()
         x, y = next(train_iter)
+        x1, y1 = next(aux_iter)
         print(y.size())
         num_data += y.size(0)
+        num_data += y1.size(0)
         x = x.to(device).float()
         y = y.to(device).long()
+        x1 = x1.to(device).float()
+        y1 = y1.to(device).long()
+        x = torch.cat((x, x1),dim=0)
+        y = torch.cat((y, y1),dim=0)
         output = model(x)
 
         loss = loss_fun(output, y)
@@ -335,8 +342,9 @@ if __name__ == '__main__':
                 adv_labels = torch.cat((adv_labels, labels), dim=0)
         print(adv_labels.size())
         print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__getitem__(0)[0].size())
-    #    train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], TensorDataset(adv_dataset, adv_labels)]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
+  #      train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], TensorDataset(adv_dataset, adv_labels)]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         train_loaders2 = [torch.utils.data.DataLoader(train_loaders[idx], batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
+        aux_loader = torch.utils.data.DataLoader(TensorDataset(adv_dataset, adv_labels), batch_size=args.batch,  shuffle=True)
         for wi in range(args.wk_iters):
             print("============ Train epoch {} ============".format(wi + a_iter * args.wk_iters))
             if args.log: logfile.write("============ Train epoch {} ============\n".format(wi + a_iter * args.wk_iters)) 
@@ -346,9 +354,9 @@ if __name__ == '__main__':
                     if a_iter > 0:
                         train_fedprox(args, model, train_loader, optimizer, loss_fun, client_num, device)
                     else:
-                        train(model, train_loader, optimizer, loss_fun, client_num, device)
+                        train(model, train_loader, aux_loader, optimizer, loss_fun, client_num, device)
                 else:
-                    train(model, train_loader, optimizer, loss_fun, client_num, device)
+                    train(model, train_loader, aux_loader, optimizer, loss_fun, client_num, device)
          
         # aggregation
         server_model, models = communication(args, server_model, models, client_weights)
