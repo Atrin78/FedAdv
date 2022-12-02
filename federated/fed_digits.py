@@ -355,7 +355,7 @@ if __name__ == '__main__':
         
         # report after aggregation
         for client_idx in range(client_num):
-                model, train_loader, optimizer = models[client_idx], train_loaders[client_idx], optimizers[client_idx]
+                model, train_loader, optimizer = models[client_idx], train_loaders2[client_idx], optimizers[client_idx]
                 train_loss, train_acc = test(model, train_loader, loss_fun, device) 
                 print(' {:<11s}| Train Loss: {:.4f} | Train Acc: {:.4f}'.format(datasets[client_idx] ,train_loss, train_acc))
                 if args.log:
