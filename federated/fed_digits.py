@@ -130,6 +130,7 @@ def train(model, train_loader, optimizer, loss_fun, client_num, device):
     for step in range(len(train_iter)):
         optimizer.zero_grad()
         x, y = next(train_iter)
+        print(x.size())
         num_data += y.size(0)
         x = x.to(device).float()
         y = y.to(device).long()
@@ -325,6 +326,7 @@ if __name__ == '__main__':
         adv_dataset = None
         for b in range(vd_len//args.attack_batch):
             data, labels = next(attack_iter)
+            print(data.size())
             adv_samples = pgd_attack(server_model, data, labels, loss_fun, device)
             if adv_dataset is None:
                 adv_dataset = adv_samples
