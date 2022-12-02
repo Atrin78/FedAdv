@@ -129,7 +129,6 @@ def train(model, train_loader, aux_loader, optimizer, loss_fun, client_num, devi
         optimizer.zero_grad()
         x, y = next(train_iter)
         x1, y1 = next(aux_iter)
-        print(y.size())
         num_data += y.size(0)
         num_data += y1.size(0)
         x = x.to(device).float()
@@ -340,8 +339,6 @@ if __name__ == '__main__':
                 adv_labels = labels
             else:
                 adv_labels = torch.cat((adv_labels, labels), dim=0)
-        print(adv_labels.size())
-        print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__getitem__(0)[0].size())
   #      train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], TensorDataset(adv_dataset, adv_labels)]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         train_loaders2 = [torch.utils.data.DataLoader(train_loaders[idx], batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         aux_loader = torch.utils.data.DataLoader(TensorDataset(adv_dataset, adv_labels), batch_size=args.batch,  shuffle=True)
