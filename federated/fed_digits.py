@@ -322,7 +322,7 @@ if __name__ == '__main__':
     # start training
     for a_iter in range(resume_iter, args.iters):
         optimizers = [optim.SGD(params=models[idx].parameters(), lr=args.lr) for idx in range(client_num)]
-        attack_iter = iter(train_loaders[0])
+        attack_iter = iter(mnistm_train_loader)
         adv_dataset = None
         for b in range(vd_len//args.attack_batch):
             data, labels = next(attack_iter)
@@ -332,6 +332,7 @@ if __name__ == '__main__':
                 adv_dataset = adv_samples
             else:
                 adv_dataset = torch.cat((adv_dataset, adv_samples), dim=0)
+        print(torch.utils.data.ConcatDataset([train_loaders[0], adv_dataset]).__len__())
         train_loaders2 = [torch.utils.data.DataLoader(torch.utils.data.ConcatDataset([train_loaders[idx], adv_dataset]), batch_size=args.batch,  shuffle=True) for idx in range(client_num)]
         for wi in range(args.wk_iters):
             print("============ Train epoch {} ============".format(wi + a_iter * args.wk_iters))
