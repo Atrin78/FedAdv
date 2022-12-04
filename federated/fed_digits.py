@@ -329,8 +329,8 @@ if __name__ == '__main__':
         adv_labels = None
         for b in range(vd_len//args.attack_batch):
             data, labels = next(attack_iter)
-
-            adv_samples = pgd_attack(server_model, data, labels, loss_fun, device)
+            adv_samples = data
+    #        adv_samples = pgd_attack(server_model, data, labels, loss_fun, device)
             if adv_dataset is None:
                 adv_dataset = adv_samples
             else:
